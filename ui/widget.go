@@ -168,23 +168,42 @@ func (t *TextBox) Update(focused Widget) error {
 	t.tick++
 	t.tick = t.tick % 60
 
-	v := []rune(t.Value)
-	rs := ebiten.InputChars()
-	t.Value = string(v[:t.index]) + string(rs) + string(v[t.index:])
-	t.index += len(rs)
+	var updated bool
+	if rs := ebiten.InputChars(); len(rs) > 0 {
+		v := []rune(t.Value)
+		t.Value = string(v[:t.index]) + string(rs) + string(v[t.index:])
+		t.index += len(rs)
+		updated = true
+	}
+
+	// TODO: Emulate repeating
 	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) && t.index > 0 {
 		if rs := []rune(t.Value); len(rs) >= t.index {
 			t.Value = string(rs[:t.index-1]) + string(rs[t.index:])
 			t.index--
+			updated = true
 		}
 	}
-	// TODO: Emulate repeating
 	if inpututil.IsKeyJustPressed(ebiten.KeyLeft) && t.index > 0 {
 		t.index--
+		updated = true
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyRight) && t.index < len([]rune(t.Value)) {
 		t.index++
+		updated = true
 	}
+
+	if updated {
+		t.tick = 0
+	}
+
+	if t.index < 0 {
+		t.index = 0
+	}
+	if l := len([]rune(t.Value)); t.index > l {
+		t.index = l
+	}
+
 	return nil
 }
 
@@ -244,9 +263,9 @@ func init() {
 	for j := 0; j < 16; j++ {
 		for i := 0; i < 16; i++ {
 			if j == 15 {
-				pix[idx] = 0x33
-				pix[idx+1] = 0x33
-				pix[idx+2] = 0x33
+				pix[idx] = 0x66
+				pix[idx+1] = 0x66
+				pix[idx+2] = 0x66
 				pix[idx+3] = 0xff
 			} else {
 				pix[idx] = 0xee

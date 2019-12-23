@@ -55,6 +55,7 @@ func textAt(text string, region image.Rectangle, h HorizontalAlign, v VerticalAl
 func closestTextIndex(str string, x int) int {
 	rs := []rune(str)
 	pw := -1
+	// TODO: Use more efficient algorithm.
 	for i := range rs {
 		w, _ := textSize(string(rs[:i]))
 		if x < w {
