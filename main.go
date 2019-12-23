@@ -4,6 +4,7 @@ package main
 
 import (
 	"fmt"
+	"image"
 	"image/color"
 
 	"github.com/hajimehoshi/ugoki/ui"
@@ -15,54 +16,36 @@ func main() {
 			&ui.Panel{
 				Children: []ui.Widget{
 					&ui.Button{
-						X:      8,
-						Y:      8,
-						Width:  40,
-						Height: 24,
+						Region: image.Rect(8, 8, 48, 32),
 						Text:   "+",
 						OnClick: func(b *ui.Button) {
 							fmt.Println("+")
 						},
 					},
 					&ui.Button{
-						X:      48,
-						Y:      8,
-						Width:  40,
-						Height: 24,
+						Region: image.Rect(48, 8, 88, 32),
 						Text:   "=",
 						OnClick: func(b *ui.Button) {
 							fmt.Println("=")
 						},
 					},
 					&ui.Button{
-						X:      88,
-						Y:      8,
-						Width:  40,
-						Height: 24,
+						Region: image.Rect(88, 8, 128, 32),
 						Text:   "-",
 						OnClick: func(b *ui.Button) {
 							fmt.Println("-")
 						},
 					},
 					&ui.Button{
-						X:      136,
-						Y:      8,
-						Width:  40,
-						Height: 24,
+						Region: image.Rect(136, 8, 176, 32),
 						Text:   "Left",
 					},
 					&ui.Button{
-						X:      176,
-						Y:      8,
-						Width:  40,
-						Height: 24,
+						Region: image.Rect(176, 8, 216, 32),
 						Text:   "Down",
 					},
 					&ui.Button{
-						X:      216,
-						Y:      8,
-						Width:  40,
-						Height: 24,
+						Region: image.Rect(216, 8, 256, 32),
 						Text:   "Right",
 					},
 				},
@@ -71,51 +54,41 @@ func main() {
 			&ui.Panel{
 				Children: []ui.Widget{
 					&ui.Button{
-						X:      8,
-						Y:      8,
-						Width:  40,
-						Height: 24,
+						Region: image.Rect(8, 8, 48, 32),
 						Text:   "A",
 					},
 					&ui.Button{
-						X:      48,
-						Y:      8,
-						Width:  40,
-						Height: 24,
+						Region: image.Rect(48, 8, 88, 32),
 						Text:   "B",
 					},
 					&ui.Button{
-						X:      88,
-						Y:      8,
-						Width:  40,
-						Height: 24,
+						Region: image.Rect(88, 8, 128, 32),
 						Text:   "C",
 					},
 					&ui.Button{
-						X:      136,
-						Y:      8,
-						Width:  40,
-						Height: 24,
+						Region: image.Rect(136, 8, 176, 32),
 						Text:   "D",
 					},
 					&ui.Button{
-						X:      176,
-						Y:      8,
-						Width:  40,
-						Height: 24,
+						Region: image.Rect(176, 8, 216, 32),
 						Text:   "E",
 					},
 					&ui.Button{
-						X:      216,
-						Y:      8,
-						Width:  40,
-						Height: 24,
+						Region: image.Rect(216, 8, 256, 32),
 						Text:   "F",
 					},
 				},
 			},
 		},
 		Widths: []int{264, -1, 264},
+	}
+
+	inspector := &ui.Panel{
+		Children: []ui.Widget{
+			&ui.Label{
+				Text: "Foo",
+			},
+		},
 	}
 
 	mainPanel := &ui.HSplitter{
@@ -134,9 +107,7 @@ func main() {
 				},
 				Heights: []int{-1, 160},
 			},
-			&ui.Panel{
-				BackgroundColor: color.RGBA{0xcc, 0xcc, 0xcc, 0xff},
-			},
+			inspector,
 		},
 		Widths: []int{200, -1, 200},
 	}

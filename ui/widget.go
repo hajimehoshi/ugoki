@@ -51,11 +51,21 @@ func (p *Panel) Draw(screen *ebiten.Image, region image.Rectangle) {
 	}
 }
 
+type Label struct {
+	Region image.Rectangle
+	Text   string
+}
+
+func (l *Label) HandleInput(region image.Rectangle) bool {
+	return false
+}
+
+func (l *Label) Draw(screen *ebiten.Image, region image.Rectangle) {
+	// TODO: Implement this.
+}
+
 type Button struct {
-	X      int
-	Y      int
-	Width  int
-	Height int
+	Region image.Rectangle
 	Text   string
 
 	OnClick func(b *Button)
@@ -63,13 +73,13 @@ type Button struct {
 	pressed bool
 }
 
-func (b *Button) absRegion(region image.Rectangle) image.Rectangle {
-	x, y := region.Min.X+b.X, region.Min.Y+b.Y
-	return image.Rect(x, y, x+b.Width, y+b.Height)
+func absRegion(rel, region image.Rectangle) image.Rectangle {
+	x, y := region.Min.X+rel.Min.X, region.Min.Y+rel.Min.Y
+	return image.Rect(x, y, x+rel.Dx(), y+rel.Dy())
 }
 
 func (b *Button) HandleInput(region image.Rectangle) bool {
-	r := b.absRegion(region)
+	r := absRegion(b.Region, region)
 	if !image.Pt(ebiten.CursorPosition()).In(r) {
 		b.pressed = false
 		return false
@@ -95,7 +105,7 @@ func (b *Button) HandleInput(region image.Rectangle) bool {
 }
 
 func (b *Button) Draw(screen *ebiten.Image, region image.Rectangle) {
-	r := b.absRegion(region)
+	r := absRegion(b.Region, region)
 	drawNinePatch(screen, tmpButtonImage, r)
 	f := bitmapfont.Gothic12r
 	bound, _ := font.BoundString(f, b.Text)
