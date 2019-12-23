@@ -58,16 +58,28 @@ func (h *HSplitter) childRegion(region image.Rectangle, index int) image.Rectang
 	return image.Rect(region.Min.X+xs[index], region.Min.Y, region.Min.X+xs[index]+ws[index], region.Max.Y)
 }
 
-func (h *HSplitter) HandleInput(region image.Rectangle) bool {
+func (h *HSplitter) HandleInput(region image.Rectangle) Widget {
 	for i, c := range h.Children {
 		if c == nil {
 			continue
 		}
-		if c.HandleInput(h.childRegion(region, i)) {
-			return true
+		if w := c.HandleInput(h.childRegion(region, i)); w != nil {
+			return w
 		}
 	}
-	return false
+	return nil
+}
+
+func (h *HSplitter) Update(focused Widget) error {
+	for _, c := range h.Children {
+		if c == nil {
+			continue
+		}
+		if err := c.Update(focused); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (h *HSplitter) Draw(screen *ebiten.Image, region image.Rectangle) {
@@ -90,16 +102,28 @@ func (v *VSplitter) childRegion(region image.Rectangle, index int) image.Rectang
 	return image.Rect(region.Min.X, region.Min.Y+ys[index], region.Max.X, region.Min.Y+ys[index]+hs[index])
 }
 
-func (v *VSplitter) HandleInput(region image.Rectangle) bool {
+func (v *VSplitter) HandleInput(region image.Rectangle) Widget {
 	for i, c := range v.Children {
 		if c == nil {
 			continue
 		}
-		if c.HandleInput(v.childRegion(region, i)) {
-			return true
+		if w := c.HandleInput(v.childRegion(region, i)); w != nil {
+			return w
 		}
 	}
-	return false
+	return nil
+}
+
+func (v *VSplitter) Update(focused Widget) error {
+	for _, c := range v.Children {
+		if c == nil {
+			continue
+		}
+		if err := c.Update(focused); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (v *VSplitter) Draw(screen *ebiten.Image, region image.Rectangle) {

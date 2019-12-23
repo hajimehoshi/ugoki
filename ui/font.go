@@ -25,11 +25,14 @@ const (
 	Bottom
 )
 
-func textAt(text string, region image.Rectangle, h HorizontalAlign, v VerticalAlign) (int, int) {
+func textSize(text string) (width, height int) {
 	f := bitmapfont.Gothic12r
-	bound, _ := font.BoundString(f, text)
-	bw := (bound.Max.X - bound.Min.X).Round()
-	bh := (bound.Max.Y - bound.Min.Y).Round()
+	b, _ := font.BoundString(f, text)
+	return (b.Max.X - b.Min.X).Round(), (b.Max.Y - b.Min.Y).Round()
+}
+
+func textAt(text string, region image.Rectangle, h HorizontalAlign, v VerticalAlign) (int, int) {
+	bw, bh := textSize(text)
 	x := region.Min.X + 4
 	switch h {
 	case Left:
@@ -47,4 +50,21 @@ func textAt(text string, region image.Rectangle, h HorizontalAlign, v VerticalAl
 		y += region.Dy() - bh
 	}
 	return x, y
+}
+
+func closestTextIndex(str string, x int) int {
+	rs := []rune(str)
+	pw := -1
+	for i := range rs {
+		w, _ := textSize(string(rs[:i]))
+		if x < w {
+			if w-x > x-pw {
+				return i - 1
+			} else {
+				return i
+			}
+		}
+		pw = w
+	}
+	return len(rs)
 }

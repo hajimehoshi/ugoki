@@ -14,7 +14,8 @@ import (
 )
 
 type Widget interface {
-	HandleInput(region image.Rectangle) bool
+	HandleInput(region image.Rectangle) Widget
+	Update(focused Widget) error
 	Draw(screen *ebiten.Image, region image.Rectangle)
 }
 
@@ -23,13 +24,22 @@ type Panel struct {
 	BackgroundColor color.Color
 }
 
-func (p *Panel) HandleInput(region image.Rectangle) bool {
+func (p *Panel) HandleInput(region image.Rectangle) Widget {
 	for _, c := range p.Children {
-		if c.HandleInput(region) {
-			return true
+		if w := c.HandleInput(region); w != nil {
+			return w
 		}
 	}
-	return true
+	return nil
+}
+
+func (p *Panel) Update(focused Widget) error {
+	for _, c := range p.Children {
+		if err := c.Update(focused); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (p *Panel) Draw(screen *ebiten.Image, region image.Rectangle) {
@@ -57,8 +67,12 @@ type Label struct {
 	VerticalAlign   VerticalAlign
 }
 
-func (l *Label) HandleInput(region image.Rectangle) bool {
-	return false
+func (l *Label) HandleInput(region image.Rectangle) Widget {
+	return nil
+}
+
+func (l *Label) Update(focused Widget) error {
+	return nil
 }
 
 func (l *Label) Draw(screen *ebiten.Image, region image.Rectangle) {
@@ -82,30 +96,33 @@ func absRegion(rel, region image.Rectangle) image.Rectangle {
 	return image.Rect(x, y, x+rel.Dx(), y+rel.Dy())
 }
 
-func (b *Button) HandleInput(region image.Rectangle) bool {
+func (b *Button) HandleInput(region image.Rectangle) Widget {
 	r := absRegion(b.Region, region)
-	if !image.Pt(ebiten.CursorPosition()).In(r) {
-		b.pressed = false
-		return false
-	}
-
 	if b.pressed {
 		if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-			return true
+			return b
 		}
-		if !inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
-			return true
+		b.pressed = false
+		if !image.Pt(ebiten.CursorPosition()).In(r) {
+			return nil
 		}
 		if b.OnClick != nil {
 			b.OnClick(b)
 		}
-		b.pressed = false
-		return true
+		return nil
 	}
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		b.pressed = true
+	if !inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		return nil
 	}
-	return true
+	if !image.Pt(ebiten.CursorPosition()).In(r) {
+		return nil
+	}
+	b.pressed = true
+	return b
+}
+
+func (b *Button) Update(focused Widget) error {
+	return nil
 }
 
 func (b *Button) Draw(screen *ebiten.Image, region image.Rectangle) {
@@ -116,13 +133,59 @@ func (b *Button) Draw(screen *ebiten.Image, region image.Rectangle) {
 	text.Draw(screen, b.Text, bitmapfont.Gothic12r, x, y, color.Black)
 }
 
+const textBoxPadding = 8
+
 type TextBox struct {
 	Region image.Rectangle
 	Value  string
+
+	index   int
+	focused bool
+	tick    int
 }
 
-func (t *TextBox) HandleInput(region image.Rectangle) bool {
-	return false
+func (t *TextBox) HandleInput(region image.Rectangle) Widget {
+	if !inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		return nil
+	}
+	r := absRegion(t.Region, region)
+	cx, cy := ebiten.CursorPosition()
+	if !image.Pt(cx, cy).In(r) {
+		return nil
+	}
+
+	t.index = closestTextIndex(t.Value, cx-(r.Min.X+textBoxPadding))
+	return t
+}
+
+func (t *TextBox) Update(focused Widget) error {
+	if t != focused {
+		t.focused = false
+		t.tick = 0
+		return nil
+	}
+	t.focused = true
+	t.tick++
+	t.tick = t.tick % 60
+
+	v := []rune(t.Value)
+	rs := ebiten.InputChars()
+	t.Value = string(v[:t.index]) + string(rs) + string(v[t.index:])
+	t.index += len(rs)
+	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) && t.index > 0 {
+		if rs := []rune(t.Value); len(rs) >= t.index {
+			t.Value = string(rs[:t.index-1]) + string(rs[t.index:])
+			t.index--
+		}
+	}
+	// TODO: Emulate repeating
+	if inpututil.IsKeyJustPressed(ebiten.KeyLeft) && t.index > 0 {
+		t.index--
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyRight) && t.index < len([]rune(t.Value)) {
+		t.index++
+	}
+	return nil
 }
 
 func (t *TextBox) Draw(screen *ebiten.Image, region image.Rectangle) {
@@ -130,13 +193,25 @@ func (t *TextBox) Draw(screen *ebiten.Image, region image.Rectangle) {
 	drawNinePatch(screen, tmpTextBoxImage, r)
 
 	x, y := textAt(t.Value, r, Left, Middle)
-	x += 8
+	x += textBoxPadding
 	text.Draw(screen, t.Value, bitmapfont.Gothic12r, x, y, color.Black)
+
+	if !t.focused {
+		return
+	}
+	if t.tick >= 30 {
+		return
+	}
+	dx, _ := textSize(string([]rune(t.Value)[:t.index]))
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(r.Min.X+textBoxPadding+dx), float64(r.Min.Y))
+	screen.DrawImage(tmpIBeamImage, op)
 }
 
 var (
 	tmpButtonImage  *ebiten.Image
 	tmpTextBoxImage *ebiten.Image
+	tmpIBeamImage   *ebiten.Image
 )
 
 func init() {
@@ -183,4 +258,9 @@ func init() {
 		}
 	}
 	tmpTextBoxImage.ReplacePixels(pix)
+}
+
+func init() {
+	tmpIBeamImage, _ = ebiten.NewImage(1, 14, ebiten.FilterDefault)
+	tmpIBeamImage.Fill(color.Black)
 }

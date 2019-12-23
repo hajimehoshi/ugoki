@@ -10,7 +10,8 @@ import (
 )
 
 type game struct {
-	panel *Panel
+	panel   *Panel
+	focused Widget
 }
 
 func (g *game) Update(screen *ebiten.Image) error {
@@ -25,7 +26,10 @@ func (g *game) Update(screen *ebiten.Image) error {
 }
 
 func (g *game) update(width, height int) error {
-	g.panel.HandleInput(image.Rect(0, 0, width, height))
+	if w := g.panel.HandleInput(image.Rect(0, 0, width, height)); w != nil {
+		g.focused = w
+	}
+	g.panel.Update(g.focused)
 	return nil
 }
 
