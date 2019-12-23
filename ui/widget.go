@@ -11,7 +11,6 @@ import (
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"github.com/hajimehoshi/ebiten/text"
-	"golang.org/x/image/font"
 )
 
 type Widget interface {
@@ -52,8 +51,10 @@ func (p *Panel) Draw(screen *ebiten.Image, region image.Rectangle) {
 }
 
 type Label struct {
-	Region image.Rectangle
-	Text   string
+	Region          image.Rectangle
+	Text            string
+	HorizontalAlign HorizontalAlign
+	VerticalAlign   VerticalAlign
 }
 
 func (l *Label) HandleInput(region image.Rectangle) bool {
@@ -61,7 +62,10 @@ func (l *Label) HandleInput(region image.Rectangle) bool {
 }
 
 func (l *Label) Draw(screen *ebiten.Image, region image.Rectangle) {
-	// TODO: Implement this.
+	r := absRegion(l.Region, region)
+
+	x, y := textAt(l.Text, r, l.HorizontalAlign, l.VerticalAlign)
+	text.Draw(screen, l.Text, bitmapfont.Gothic12r, x, y, color.Black)
 }
 
 type Button struct {
@@ -107,13 +111,9 @@ func (b *Button) HandleInput(region image.Rectangle) bool {
 func (b *Button) Draw(screen *ebiten.Image, region image.Rectangle) {
 	r := absRegion(b.Region, region)
 	drawNinePatch(screen, tmpButtonImage, r)
-	f := bitmapfont.Gothic12r
-	bound, _ := font.BoundString(f, b.Text)
-	bw := (bound.Max.X - bound.Min.X).Round()
-	bh := (bound.Max.Y - bound.Min.Y).Round()
-	x := r.Min.X + 4 + (r.Dx()-bw)/2
-	y := r.Min.Y + 12 + (r.Dy()-bh)/2
-	text.Draw(screen, b.Text, f, x, y, color.Black)
+
+	x, y := textAt(b.Text, r, Center, Middle)
+	text.Draw(screen, b.Text, bitmapfont.Gothic12r, x, y, color.Black)
 }
 
 var tmpButtonImage *ebiten.Image

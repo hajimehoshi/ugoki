@@ -15,8 +15,8 @@ func drawNinePatch(dst, src *ebiten.Image, region image.Rectangle) {
 	sy := []int{0, sh / 4, sh * 3 / 4, sh}
 	dox := float64(region.Min.X)
 	doy := float64(region.Min.Y)
-	dx := []float64{dox, dox+float64(sw / 4), dox+float64(region.Dx() - sw/4)}
-	dy := []float64{doy, doy+float64(sh / 4), doy+float64(region.Dy() - sh/4)}
+	dx := []float64{dox, dox + float64(sw/4), dox + float64(region.Dx()-sw/4)}
+	dy := []float64{doy, doy + float64(sh/4), doy + float64(region.Dy()-sh/4)}
 	dw := []float64{1.0, float64(region.Dx()-sw/2) / float64(sw/2), 1.0}
 	dh := []float64{1.0, float64(region.Dy()-sh/2) / float64(sh/2), 1.0}
 

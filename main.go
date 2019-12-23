@@ -86,7 +86,19 @@ func main() {
 	inspector := &ui.Panel{
 		Children: []ui.Widget{
 			&ui.Label{
-				Text: "Foo",
+				Region:          image.Rect(8, 8, 80, 24),
+				Text:            "Foo",
+				HorizontalAlign: ui.Right,
+			},
+			&ui.Label{
+				Region:          image.Rect(8, 32, 80, 48),
+				Text:            "Bar",
+				HorizontalAlign: ui.Right,
+			},
+			&ui.Label{
+				Region:          image.Rect(8, 56, 80, 72),
+				Text:            "Baz",
+				HorizontalAlign: ui.Right,
 			},
 		},
 	}
@@ -109,7 +121,7 @@ func main() {
 			},
 			inspector,
 		},
-		Widths: []int{200, -1, 200},
+		Widths: []int{240, -1, 240},
 	}
 
 	statusBar := &ui.Panel{
@@ -128,6 +140,7 @@ func main() {
 			},
 		},
 	})
+	u.SetWindowSize(800, 600)
 	u.SetTitle("Ugoki")
 	if err := u.Main(); err != nil {
 		panic(err)

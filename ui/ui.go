@@ -9,7 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten"
 )
 
-type game struct{
+type game struct {
 	panel *Panel
 }
 
@@ -45,10 +45,14 @@ type UI struct {
 
 func New(panel *Panel) *UI {
 	return &UI{
-		game:  &game{
+		game: &game{
 			panel: panel,
 		},
 	}
+}
+
+func (u *UI) SetWindowSize(width, height int) {
+	ebiten.SetWindowSize(width, height)
 }
 
 func (u *UI) SetTitle(title string) {
