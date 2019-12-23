@@ -89,16 +89,29 @@ func main() {
 				Region:          image.Rect(8, 8, 80, 24),
 				Text:            "Foo",
 				HorizontalAlign: ui.Right,
+				VerticalAlign:   ui.Middle,
+			},
+			&ui.TextBox{
+				Region: image.Rect(88, 8, 232, 24),
+				Value:  "Default",
 			},
 			&ui.Label{
 				Region:          image.Rect(8, 32, 80, 48),
 				Text:            "Bar",
 				HorizontalAlign: ui.Right,
+				VerticalAlign:   ui.Middle,
+			},
+			&ui.TextBox{
+				Region: image.Rect(88, 32, 232, 48),
 			},
 			&ui.Label{
 				Region:          image.Rect(8, 56, 80, 72),
 				Text:            "Baz",
 				HorizontalAlign: ui.Right,
+				VerticalAlign:   ui.Middle,
+			},
+			&ui.TextBox{
+				Region: image.Rect(88, 56, 232, 72),
 			},
 		},
 	}

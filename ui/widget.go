@@ -116,10 +116,31 @@ func (b *Button) Draw(screen *ebiten.Image, region image.Rectangle) {
 	text.Draw(screen, b.Text, bitmapfont.Gothic12r, x, y, color.Black)
 }
 
-var tmpButtonImage *ebiten.Image
+type TextBox struct {
+	Region image.Rectangle
+	Value  string
+}
+
+func (t *TextBox) HandleInput(region image.Rectangle) bool {
+	return false
+}
+
+func (t *TextBox) Draw(screen *ebiten.Image, region image.Rectangle) {
+	r := absRegion(t.Region, region)
+	drawNinePatch(screen, tmpTextBoxImage, r)
+
+	x, y := textAt(t.Value, r, Left, Middle)
+	x += 8
+	text.Draw(screen, t.Value, bitmapfont.Gothic12r, x, y, color.Black)
+}
+
+var (
+	tmpButtonImage  *ebiten.Image
+	tmpTextBoxImage *ebiten.Image
+)
 
 func init() {
-	tmpButtonImage, _ = ebiten.NewImage(16, 16, ebiten.FilterNearest)
+	tmpButtonImage, _ = ebiten.NewImage(16, 16, ebiten.FilterDefault)
 	pix := make([]byte, 4*16*16)
 	idx := 0
 	for j := 0; j < 16; j++ {
@@ -139,4 +160,27 @@ func init() {
 		}
 	}
 	tmpButtonImage.ReplacePixels(pix)
+}
+
+func init() {
+	tmpTextBoxImage, _ = ebiten.NewImage(16, 16, ebiten.FilterDefault)
+	pix := make([]byte, 4*16*16)
+	idx := 0
+	for j := 0; j < 16; j++ {
+		for i := 0; i < 16; i++ {
+			if j == 15 {
+				pix[idx] = 0x33
+				pix[idx+1] = 0x33
+				pix[idx+2] = 0x33
+				pix[idx+3] = 0xff
+			} else {
+				pix[idx] = 0xee
+				pix[idx+1] = 0xee
+				pix[idx+2] = 0xee
+				pix[idx+3] = 0xff
+			}
+			idx += 4
+		}
+	}
+	tmpTextBoxImage.ReplacePixels(pix)
 }
