@@ -86,32 +86,34 @@ func main() {
 	inspector := &ui.Panel{
 		Children: []ui.Widget{
 			&ui.Label{
-				Region:          image.Rect(8, 8, 80, 24),
-				Text:            "Foo",
-				HorizontalAlign: ui.Right,
-				VerticalAlign:   ui.Middle,
-			},
-			&ui.TextBox{
-				Region: image.Rect(88, 8, 232, 24),
-				Value:  "Default",
+				Region:        image.Rect(8, 8, 248, 24),
+				Text:          "Header",
+				VerticalAlign: ui.Middle,
 			},
 			&ui.Label{
 				Region:          image.Rect(8, 32, 80, 48),
-				Text:            "Bar",
+				Text:            "Foo",
 				HorizontalAlign: ui.Right,
-				VerticalAlign:   ui.Middle,
 			},
 			&ui.TextBox{
 				Region: image.Rect(88, 32, 232, 48),
+				Value:  "Default",
 			},
 			&ui.Label{
 				Region:          image.Rect(8, 56, 80, 72),
-				Text:            "Baz",
+				Text:            "Bar",
 				HorizontalAlign: ui.Right,
-				VerticalAlign:   ui.Middle,
 			},
 			&ui.TextBox{
 				Region: image.Rect(88, 56, 232, 72),
+			},
+			&ui.Label{
+				Region:          image.Rect(8, 80, 80, 96),
+				Text:            "Baz",
+				HorizontalAlign: ui.Right,
+			},
+			&ui.TextBox{
+				Region: image.Rect(88, 80, 232, 96),
 			},
 		},
 	}

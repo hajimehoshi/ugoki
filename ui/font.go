@@ -20,8 +20,8 @@ const (
 type VerticalAlign int
 
 const (
-	Top VerticalAlign = iota
-	Middle
+	Middle VerticalAlign = iota
+	Top
 	Bottom
 )
 
