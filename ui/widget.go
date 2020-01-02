@@ -158,6 +158,17 @@ func (t *TextBox) HandleInput(region image.Rectangle) Widget {
 	return t
 }
 
+func filterRunes(src []rune) []rune {
+	var rs []rune
+	for _, r := range src {
+		if r > 0xff {
+			continue
+		}
+		rs = append(rs, r)
+	}
+	return rs
+}
+
 func (t *TextBox) Update(focused Widget) error {
 	if t != focused {
 		t.focused = false
@@ -169,7 +180,7 @@ func (t *TextBox) Update(focused Widget) error {
 	t.tick = t.tick % 60
 
 	var updated bool
-	if rs := ebiten.InputChars(); len(rs) > 0 {
+	if rs := filterRunes(ebiten.InputChars()); len(rs) > 0 {
 		v := []rune(t.Value)
 		t.Value = string(v[:t.index]) + string(rs) + string(v[t.index:])
 		t.index += len(rs)
